@@ -15,7 +15,7 @@ public class Weapon : MonoBehaviour {
     private AudioSource audioSource;
 
     
-    public float fireRate = 0.1f;
+    public float fireRate = 200f;
     public Camera cam;
     float fireTimer;
 	// Use this for initialization
@@ -31,6 +31,9 @@ public class Weapon : MonoBehaviour {
         {
             Fire();
         }
+        Debug.Log("FiremTime" + fireTimer);
+        Debug.Log(Time.deltaTime);
+        Debug.Log("Firerate" + fireRate);
         if (fireTimer < fireRate) fireTimer += Time.deltaTime;
 	}
     void OnGUI()
@@ -56,10 +59,10 @@ public class Weapon : MonoBehaviour {
         if(Physics.Raycast(cam.transform.position,cam.transform.forward, out hit, range))
         {
         Debug.Log(hit.transform.name + "Hit ");
+        }
             audioSource.clip = shootSound;
             audioSource.Play();
             muzzleFlash.Play();
-        }
 
         currentBullets -= 1;
 

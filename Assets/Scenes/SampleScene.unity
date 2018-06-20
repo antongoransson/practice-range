@@ -293,11 +293,11 @@ MonoBehaviour:
   range: 100
   bulletsPerMag: 30
   bulletsLeft: 0
-  crosshairScale: 1
+  crosshairScale: 0.2
   shootSound: {fileID: 8300000, guid: 65201ddabb4144f6a8fb9480120b7656, type: 3}
   currentBullets: 0
   muzzleFlash: {fileID: 1638609803}
-  fireRate: 0.1
+  fireRate: 0.3
   cam: {fileID: 2080786862}
 --- !u!82 &521830294
 AudioSource:
