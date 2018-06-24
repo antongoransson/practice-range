@@ -31,11 +31,10 @@ public class Weapon : MonoBehaviour {
         {
             Fire();
         }
-        Debug.Log("FiremTime" + fireTimer);
-        Debug.Log(Time.deltaTime);
-        Debug.Log("Firerate" + fireRate);
+       
         if (fireTimer < fireRate) fireTimer += Time.deltaTime;
 	}
+
     void OnGUI()
     {
         if (Time.timeScale != 0)
@@ -51,6 +50,7 @@ public class Weapon : MonoBehaviour {
                 Debug.Log("No crosshair texture set in the Inspector");
         }
     }
+
     private void Fire()
     {
         if (fireTimer < fireRate) return;
@@ -59,6 +59,7 @@ public class Weapon : MonoBehaviour {
         if(Physics.Raycast(cam.transform.position,cam.transform.forward, out hit, range))
         {
         Debug.Log(hit.transform.name + "Hit ");
+
         }
             audioSource.clip = shootSound;
             audioSource.Play();
