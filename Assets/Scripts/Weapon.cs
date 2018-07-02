@@ -59,6 +59,8 @@ public class Weapon : MonoBehaviour {
         if(Physics.Raycast(cam.transform.position,cam.transform.forward, out hit, range))
         {
         Debug.Log(hit.transform.name + "Hit ");
+            if(hit.transform.tag == "Target" )
+             Destroy(hit.transform.gameObject);
 
         }
             audioSource.clip = shootSound;
