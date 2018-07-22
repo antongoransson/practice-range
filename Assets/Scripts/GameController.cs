@@ -11,6 +11,8 @@ public class GameController : MonoBehaviour {
     public bool [] spawned;
     public Vector3 [] sizes;
     public int spawnDistance;
+
+    
 	// Use this for initialization
 	void Start () {
         player = GameObject.FindGameObjectWithTag("Player");
