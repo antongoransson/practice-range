@@ -59,7 +59,7 @@ public class Weapon : MonoBehaviour {
         if(Physics.Raycast(cam.transform.position,cam.transform.forward, out hit, range))
         {
         Debug.Log(hit.transform.name + "Hit ");
-            if(hit.transform.tag == "Target" )
+            if(hit.transform.tag == "EnemyTarget" )
              Destroy(hit.transform.gameObject);
 
         }
