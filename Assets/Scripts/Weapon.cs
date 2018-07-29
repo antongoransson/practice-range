@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class Weapon : MonoBehaviour {
     public Texture2D crosshairTexture;
     public float range = 100f;
@@ -12,6 +13,8 @@ public class Weapon : MonoBehaviour {
     public AudioClip reloadSound;
     public int currentBullets;
     public ParticleSystem muzzleFlash;
+    public GameObject explosion;
+    public GameObject gameController;
     private AudioSource audioSource;
 
     public Text enemies;
@@ -31,8 +34,10 @@ public class Weapon : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        gameController = GameObject.FindGameObjectWithTag ("GameController");
         if (cam == null) { Debug.Log ("No camera for weapon"); }
         currentBullets = bulletsPerMag;
+        reloading.gameObject.SetActive(false);
         audioSource = GetComponent<AudioSource> ();
         enemiesKilled = 0;
         isReloading = false;
@@ -44,13 +49,14 @@ public class Weapon : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+        if(gameController.GetComponent<GameController>().gameEnded) return;
         if (isReloading && reloadTimer > reloadTime) {
             currentBullets = bulletsPerMag;
             setAmmoText ();
-            reloading.text = "";
+            reloading.gameObject.SetActive(false);
             isReloading = false;
         }
-        if (Input.GetButton ("Fire1") && !isReloading) {
+        if (!Input.GetButton("Shift") && Input.GetButton ("Fire1") && !isReloading) {
             Fire ();
         } else if (Input.GetButton ("R")) {
             reload ();
@@ -81,10 +87,12 @@ public class Weapon : MonoBehaviour {
         if (Physics.Raycast (cam.transform.position, cam.transform.forward, out hit, range)) {
             Debug.Log (hit.transform.name + "Hit ");
             if (hit.transform.tag == "EnemyTarget") {
+                Instantiate(explosion,hit.transform.position, Quaternion.identity );
                 Destroy (hit.transform.gameObject);
                 enemiesKilled += 1;
                 setEnemiesKilledText ();
             } else if (hit.transform.tag == "FriendlyTarget") {
+                Instantiate(explosion,hit.transform.position, Quaternion.identity );
                 Destroy (hit.transform.gameObject);
                 friendliesKilled += 1;
                 setFriendliesKilledText ();
@@ -107,7 +115,7 @@ public class Weapon : MonoBehaviour {
         audioSource.Play ();
         isReloading = true;
         reloadTimer = 0.0f;
-        reloading.text = "Reloading...";
+        reloading.gameObject.SetActive(true);
 
     }
     private void setEnemiesKilledText () {
