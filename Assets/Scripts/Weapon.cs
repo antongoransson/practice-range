@@ -31,12 +31,14 @@ public class Weapon : MonoBehaviour {
     float fireTimer;
     float reloadTimer;
     bool isReloading;
+    public int bulletsFired;
 
     // Use this for initialization
     void Start () {
         gameController = GameObject.FindGameObjectWithTag ("GameController");
         if (cam == null) { Debug.Log ("No camera for weapon"); }
         currentBullets = bulletsPerMag;
+        bulletsFired = 0;
         reloading.gameObject.SetActive(false);
         audioSource = GetComponent<AudioSource> ();
         enemiesKilled = 0;
@@ -56,7 +58,7 @@ public class Weapon : MonoBehaviour {
             reloading.gameObject.SetActive(false);
             isReloading = false;
         }
-        if (!Input.GetButton("Shift") && Input.GetButton ("Fire1") && !isReloading) {
+        if (!Input.GetKey(KeyCode.LeftShift) && Input.GetButton ("Fire1") && !isReloading) {
             Fire ();
         } else if (Input.GetButton ("R")) {
             reload ();
@@ -87,13 +89,11 @@ public class Weapon : MonoBehaviour {
         if (Physics.Raycast (cam.transform.position, cam.transform.forward, out hit, range)) {
             Debug.Log (hit.transform.name + "Hit ");
             if (hit.transform.tag == "EnemyTarget") {
-                Instantiate(explosion,hit.transform.position, Quaternion.identity );
-                Destroy (hit.transform.gameObject);
+                hit.transform.gameObject.GetComponent<Target>().onHit();
                 enemiesKilled += 1;
                 setEnemiesKilledText ();
             } else if (hit.transform.tag == "FriendlyTarget") {
-                Instantiate(explosion,hit.transform.position, Quaternion.identity );
-                Destroy (hit.transform.gameObject);
+                 hit.transform.gameObject.GetComponent<Target>().onHit();
                 friendliesKilled += 1;
                 setFriendliesKilledText ();
             }
@@ -104,6 +104,7 @@ public class Weapon : MonoBehaviour {
         muzzleFlash.Play ();
 
         currentBullets -= 1;
+        bulletsFired += 1;
         if (currentBullets == 0)
             reload ();
         setAmmoText ();

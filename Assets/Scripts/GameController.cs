@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour {
     public GameObject enemyTarget;
     public GameObject friendlyTarget;
     GameObject player;
+    Weapon weapon;
 
     public Transform[] spawnPoints;
     public Transform endPoint;
@@ -17,12 +18,18 @@ public class GameController : MonoBehaviour {
     public int spawnDistance;
     public bool gameEnded;
 
+    private int friendliesSpawned;
+    private int enemiesSpawned;
+
     public Text endText;
 
     // Use this for initialization
     void Start () {
         gameEnded = false;
         player = GameObject.FindGameObjectWithTag ("Player");
+        weapon = GameObject.FindGameObjectWithTag ("Weapon").GetComponent<Weapon> ();
+        enemiesSpawned = 0;
+        friendliesSpawned = 0;
         spawned = new bool[spawnPoints.Length];
         for (int i = 0; i < spawnPoints.Length; i++)
             spawned[i] = false;
@@ -55,10 +62,13 @@ public class GameController : MonoBehaviour {
                         Vector3 pos = spawnPoints[i].position + new Vector3 (Random.Range (-size.x / 2, size.x / 2), 0, Random.Range (-size.z / 2, size.z / 2));
                         if (OkSpawnPoint (pos, spawnedLocations)) {
                             canSpawn = true;
-                            if(j == 5)
-                             Instantiate (friendlyTarget, pos, Quaternion.identity);
-                             else
-                              Instantiate (enemyTarget, pos, Quaternion.identity);
+                            if (j == 5) {
+                                Instantiate (friendlyTarget, pos, Quaternion.identity);
+                                friendliesSpawned += 1;
+                            } else {
+                                Instantiate (enemyTarget, pos, Quaternion.identity);
+                                enemiesSpawned += 1;
+                            }
                             spawnedLocations.Add (pos);
 
                         }
@@ -81,14 +91,17 @@ public class GameController : MonoBehaviour {
     public void EndGame () {
         Time.timeScale = 0;
         gameEnded = true;
-        endText.text = "Game ended. Press R to restart";
+        string accuracy = ((100 * weapon.enemiesKilled) / (weapon.bulletsFired)).ToString ();
+        string enemyStats = weapon.enemiesKilled.ToString() + "/" + enemiesSpawned.ToString();
+        string friendlyStats = weapon.friendliesKilled.ToString() + "/" + friendliesSpawned.ToString();
+        endText.text = "Game ended. Press R to restart.\n Your accuracy was: " + accuracy + "%" + "\nEnemies killed: " + enemyStats +"\nFriendlies killed: " + friendlyStats;
+}
+void OnDrawGizmosSelected () {
+    Gizmos.color = new Color (1, 0, 0, 0.5f);
+    for (int i = 0; i < spawnPoints.Length; i++) {
+        Vector3 size = sizes[i];
+        Gizmos.DrawCube (spawnPoints[i].position, size);
     }
-    void OnDrawGizmosSelected () {
-        Gizmos.color = new Color (1, 0, 0, 0.5f);
-        for (int i = 0; i < spawnPoints.Length; i++) {
-            Vector3 size = sizes[i];
-            Gizmos.DrawCube (spawnPoints[i].position, size);
-        }
-        Gizmos.DrawCube (endPoint.position, endPointSize);
-    }
+    Gizmos.DrawCube (endPoint.position, endPointSize);
+}
 }
