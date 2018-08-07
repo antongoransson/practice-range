@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour {
     public Vector3 endPointSize;
     public int spawnDistance;
     public bool gameEnded;
+    public bool hasStarted;
 
     private int friendliesSpawned;
     private int enemiesSpawned;
@@ -26,10 +27,13 @@ public class GameController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         gameEnded = false;
+        hasStarted = false;
+        Time.timeScale = 0;
         player = GameObject.FindGameObjectWithTag ("Player");
         weapon = GameObject.FindGameObjectWithTag ("Weapon").GetComponent<Weapon> ();
         enemiesSpawned = 0;
         friendliesSpawned = 0;
+        endText.text = "When you are ready press SPACE to start";
         spawned = new bool[spawnPoints.Length];
         for (int i = 0; i < spawnPoints.Length; i++)
             spawned[i] = false;
@@ -39,17 +43,18 @@ public class GameController : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         if (Vector3.Distance (player.transform.position, endPoint.position) < 30 && !gameEnded) EndGame ();
-        if (gameEnded) {
-            if (Input.GetButton ("R")) {
-                Time.timeScale = 1;
-                Scene level = SceneManager.GetActiveScene ();
-                SceneManager.LoadScene (level.name);
-
-            }
+        if (gameEnded && Input.GetButton ("R")) {
+            Time.timeScale = 1;
+            Scene level = SceneManager.GetActiveScene ();
+            SceneManager.LoadScene (level.name);
+        } else if (!hasStarted && Input.GetKeyDown (KeyCode.Space)) {
+            Time.timeScale = 1;
+            hasStarted = true;
+            endText.text = "";
         }
         SpawnTargets ();
-
     }
+
     private void SpawnTargets () {
         List<Vector3> spawnedLocations = new List<Vector3> ();
         for (int i = 0; i < spawnPoints.Length; i++) {
@@ -80,7 +85,7 @@ public class GameController : MonoBehaviour {
     private bool OkSpawnPoint (Vector3 pos, List<Vector3> spawnedLocations) {
         bool tooClose = false;
         for (int i = 0; i < spawnedLocations.Count; i++) {
-            if (Vector3.Distance (pos, spawnedLocations[i]) <= 1) {
+            if (Vector3.Distance (pos, spawnedLocations[i]) <= 2) {
                 tooClose = true;
                 break;
 
@@ -88,20 +93,22 @@ public class GameController : MonoBehaviour {
         }
         return !tooClose;
     }
+
     public void EndGame () {
         Time.timeScale = 0;
         gameEnded = true;
         string accuracy = ((100 * weapon.enemiesKilled) / (weapon.bulletsFired)).ToString ();
-        string enemyStats = weapon.enemiesKilled.ToString() + "/" + enemiesSpawned.ToString();
-        string friendlyStats = weapon.friendliesKilled.ToString() + "/" + friendliesSpawned.ToString();
-        endText.text = "Game ended. Press R to restart.\n Your accuracy was: " + accuracy + "%" + "\nEnemies killed: " + enemyStats +"\nFriendlies killed: " + friendlyStats;
-}
-void OnDrawGizmosSelected () {
-    Gizmos.color = new Color (1, 0, 0, 0.5f);
-    for (int i = 0; i < spawnPoints.Length; i++) {
-        Vector3 size = sizes[i];
-        Gizmos.DrawCube (spawnPoints[i].position, size);
+        string enemyStats = weapon.enemiesKilled.ToString () + "/" + enemiesSpawned.ToString ();
+        string friendlyStats = weapon.friendliesKilled.ToString () + "/" + friendliesSpawned.ToString ();
+        endText.text = "Game ended. Press R to restart.\n Your accuracy was: " + accuracy + "%" + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
     }
-    Gizmos.DrawCube (endPoint.position, endPointSize);
-}
+
+    void OnDrawGizmosSelected () {
+        Gizmos.color = new Color (1, 0, 0, 0.5f);
+        for (int i = 0; i < spawnPoints.Length; i++) {
+            Vector3 size = sizes[i];
+            Gizmos.DrawCube (spawnPoints[i].position, size);
+        }
+        Gizmos.DrawCube (endPoint.position, endPointSize);
+    }
 }
