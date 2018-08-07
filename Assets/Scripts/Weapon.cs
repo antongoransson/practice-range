@@ -13,17 +13,12 @@ public class Weapon : MonoBehaviour {
     public AudioClip reloadSound;
     public int currentBullets;
     public ParticleSystem muzzleFlash;
-    public GameObject explosion;
     public GameObject gameController;
     private AudioSource audioSource;
 
-    public Text enemies;
-    public Text friendlies;
     public Text currentAmmo;
     public Text reloading;
 
-    public int enemiesKilled;
-    public int friendliesKilled;
     public float fireRate = 200f;
     public float reloadTime;
     public Camera cam;
@@ -39,29 +34,25 @@ public class Weapon : MonoBehaviour {
         if (cam == null) { Debug.Log ("No camera for weapon"); }
         currentBullets = bulletsPerMag;
         bulletsFired = 0;
-        reloading.gameObject.SetActive(false);
+        reloading.gameObject.SetActive (false);
         audioSource = GetComponent<AudioSource> ();
-        enemiesKilled = 0;
         isReloading = false;
-        friendliesKilled = 0;
-        setEnemiesKilledText ();
-        setFriendliesKilledText ();
         setAmmoText ();
     }
 
     // Update is called once per frame
     void Update () {
-        if(gameController.GetComponent<GameController>().gameEnded) return;
+        if (gameController.GetComponent<GameController> ().gameEnded || Time.timeScale == 0) return;
         if (isReloading && reloadTimer > reloadTime) {
             currentBullets = bulletsPerMag;
             setAmmoText ();
-            reloading.gameObject.SetActive(false);
+            reloading.gameObject.SetActive (false);
             isReloading = false;
         }
-        if (!Input.GetKey(KeyCode.LeftShift) && Input.GetButton ("Fire1") && !isReloading) {
+        if (!Input.GetKey (KeyCode.LeftShift) && Input.GetButton ("Fire1") && !isReloading) {
             Fire ();
         } else if (Input.GetButton ("R")) {
-            reload ();
+            Reload ();
         }
 
         if (fireTimer < fireRate) fireTimer += Time.deltaTime;
@@ -82,20 +73,13 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    private void Fire () {
+    void Fire () {
         if (fireTimer < fireRate) return;
         RaycastHit hit;
 
         if (Physics.Raycast (cam.transform.position, cam.transform.forward, out hit, range)) {
-            Debug.Log (hit.transform.name + "Hit ");
-            if (hit.transform.tag == "EnemyTarget") {
-                hit.transform.gameObject.GetComponent<Target>().onHit();
-                enemiesKilled += 1;
-                setEnemiesKilledText ();
-            } else if (hit.transform.tag == "FriendlyTarget") {
-                 hit.transform.gameObject.GetComponent<Target>().onHit();
-                friendliesKilled += 1;
-                setFriendliesKilledText ();
+            if (hit.transform.tag == "EnemyTarget" || hit.transform.tag == "FriendlyTarget") {
+                hit.transform.gameObject.GetComponent<Target> ().onHit ();
             }
 
         }
@@ -106,29 +90,21 @@ public class Weapon : MonoBehaviour {
         currentBullets -= 1;
         bulletsFired += 1;
         if (currentBullets == 0)
-            reload ();
+            Reload ();
         setAmmoText ();
 
         fireTimer = 0.0f;
     }
-    private void reload () {
+
+    void Reload () {
         audioSource.clip = reloadSound;
         audioSource.Play ();
         isReloading = true;
         reloadTimer = 0.0f;
-        reloading.gameObject.SetActive(true);
+        reloading.gameObject.SetActive (true);
 
     }
-    private void setEnemiesKilledText () {
-        enemies.text = "Enemies killed: " + enemiesKilled.ToString ();
-
-    }
-    private void setFriendliesKilledText () {
-        friendlies.text = "Friendlies killed: " + friendliesKilled.ToString ();
-
-    }
-    private void setAmmoText () {
+    void setAmmoText () {
         currentAmmo.text = "Current Ammo: " + currentBullets.ToString () + "/" + bulletsPerMag.ToString ();
-
     }
 }

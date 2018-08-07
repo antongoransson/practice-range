@@ -19,10 +19,14 @@ public class GameController : MonoBehaviour {
     public bool gameEnded;
     public bool hasStarted;
 
-    private int friendliesSpawned;
-    private int enemiesSpawned;
+    int friendliesSpawned;
+    int enemiesSpawned;
+    int enemiesKilled;
+    int friendliesKilled;
 
     public Text endText;
+    public Text enemies;
+    public Text friendlies;
 
     // Use this for initialization
     void Start () {
@@ -33,11 +37,14 @@ public class GameController : MonoBehaviour {
         weapon = GameObject.FindGameObjectWithTag ("Weapon").GetComponent<Weapon> ();
         enemiesSpawned = 0;
         friendliesSpawned = 0;
+        enemiesSpawned = 0;
+        friendliesKilled = 0;
         endText.text = "When you are ready press SPACE to start";
         spawned = new bool[spawnPoints.Length];
         for (int i = 0; i < spawnPoints.Length; i++)
             spawned[i] = false;
-
+        SetEnemiesKilledText ();
+        SetFriendliesKilledText ();
     }
 
     // Update is called once per frame
@@ -84,11 +91,11 @@ public class GameController : MonoBehaviour {
     }
     private bool OkSpawnPoint (Vector3 pos, List<Vector3> spawnedLocations) {
         bool tooClose = false;
-        for (int i = 0; i < spawnedLocations.Count; i++) {
-            if (Vector3.Distance (pos, spawnedLocations[i]) <= 2) {
+        foreach (Vector3 location in spawnedLocations)
+        {
+            if (Vector3.Distance (pos, location) <= 2) {
                 tooClose = true;
                 break;
-
             }
         }
         return !tooClose;
@@ -97,10 +104,33 @@ public class GameController : MonoBehaviour {
     public void EndGame () {
         Time.timeScale = 0;
         gameEnded = true;
-        string accuracy = ((100 * weapon.enemiesKilled) / (weapon.bulletsFired)).ToString ();
-        string enemyStats = weapon.enemiesKilled.ToString () + "/" + enemiesSpawned.ToString ();
-        string friendlyStats = weapon.friendliesKilled.ToString () + "/" + friendliesSpawned.ToString ();
-        endText.text = "Game ended. Press R to restart.\n Your accuracy was: " + accuracy + "%" + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
+        string enemyStats = enemiesKilled.ToString () + "/" + enemiesSpawned.ToString ();
+        string friendlyStats = friendliesKilled.ToString () + "/" + friendliesSpawned.ToString ();
+        endText.text = "Game ended. Press R to restart.\n" + GetAccuracy () + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
+    }
+
+    string GetAccuracy () {
+        int bulletsFired = weapon.bulletsFired;
+        if (bulletsFired == 0)
+            return "No shots were fired";
+        string accuracy = ((100 * enemiesKilled) / (weapon.bulletsFired)).ToString ();
+        return " Your accuracy was: " + accuracy + "%";
+    }
+    public void TargetOnHit (string tag) {
+        if (tag == "EnemyTarget") {
+            enemiesKilled += 1;
+            SetEnemiesKilledText ();
+        } else if (tag == "FriendlyTarget") {
+            friendliesKilled += 1;
+            SetFriendliesKilledText ();
+        }
+    }
+
+    void SetEnemiesKilledText () {
+        enemies.text = "Enemies killed: " + enemiesKilled.ToString ();
+    }
+    void SetFriendliesKilledText () {
+        friendlies.text = "Friendlies killed: " + friendliesKilled.ToString ();
     }
 
     void OnDrawGizmosSelected () {

@@ -15,6 +15,8 @@ public class Target : MonoBehaviour {
 	}
 
 	public void onHit() {
+		GameController gc = GameObject.FindGameObjectWithTag ("GameController").GetComponent<GameController>();
+		if(gc != null) gc.TargetOnHit(gameObject.tag);
 		GameObject tmp = Instantiate(explosion, gameObject.transform.position, Quaternion.identity);
 		Destroy(gameObject);
 		Destroy(tmp, 1);

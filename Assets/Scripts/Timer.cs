@@ -8,7 +8,7 @@ public class Timer : MonoBehaviour {
 
 	// Use this for initialization
 	public float t;
-	 public Text time;
+	public Text time;
 	void Start () {
 		t = 0;
 		
@@ -21,7 +21,7 @@ public class Timer : MonoBehaviour {
 		
 	}
 	public override string ToString(){
-		return "Time: " + System.Math.Round(t, 2) ; 
+		return "Time: " + System.Math.Round(t, 1) ; 
 	}  
 }
 

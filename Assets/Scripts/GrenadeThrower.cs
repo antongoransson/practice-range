@@ -12,7 +12,7 @@ public class GrenadeThrower : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// Right mosue button
-		if(Input.GetMouseButtonDown(1)) {
+		if(Input.GetMouseButtonDown(1) && Time.timeScale != 0) {
 			ThrowGrenade();
 		}
 	}
@@ -22,5 +22,4 @@ public class GrenadeThrower : MonoBehaviour {
 		Rigidbody rb = grenade.GetComponent<Rigidbody>();
 		rb.AddForce(cam.transform.forward * throwForce, ForceMode.VelocityChange);
 	}
-
 }
