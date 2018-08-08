@@ -32,7 +32,9 @@ public class Grenade : MonoBehaviour {
 		foreach (Collider obj in targetsHit) {
 			RaycastHit hit;
 			if (Physics.Linecast (transform.position, obj.transform.position, out hit)) {
-				if (hit.transform == obj.transform) {
+				Debug.Log(hit.transform.gameObject.tag);
+				// Don't destroy target if a wall is in the way
+				if (hit.transform == obj.transform || hit.transform.gameObject.tag == "FriendlyTarget"  || hit.transform.gameObject.tag == "EnemyTarget") {
 					Target t = obj.GetComponent<Target> ();
 					if (t != null) {
 						t.onHit ();

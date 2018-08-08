@@ -24,9 +24,11 @@ public class GameController : MonoBehaviour {
     int enemiesKilled;
     int friendliesKilled;
 
-    public Text endText;
+    public Text infoText;
     public Text enemies;
     public Text friendlies;
+
+    public int targetsToSpawn = 6;
 
     // Use this for initialization
     void Start () {
@@ -39,7 +41,7 @@ public class GameController : MonoBehaviour {
         friendliesSpawned = 0;
         enemiesSpawned = 0;
         friendliesKilled = 0;
-        endText.text = "When you are ready press SPACE to start";
+        infoText.text = "Use \"Left Mouse\" to shoot and \"Right Mouse\" to throw grenades\nWhen you are ready press SPACE to start";
         spawned = new bool[spawnPoints.Length];
         for (int i = 0; i < spawnPoints.Length; i++)
             spawned[i] = false;
@@ -57,13 +59,13 @@ public class GameController : MonoBehaviour {
         } else if (!hasStarted && Input.GetKeyDown (KeyCode.Space)) {
             Time.timeScale = 1;
             hasStarted = true;
-            endText.text = "";
+            infoText.text = "";
         }
         SpawnTargets ();
     }
 
     private void SpawnTargets () {
-        List<Vector3> spawnedLocations = new List<Vector3> ();
+        Vector3[] spawnedLocations = new Vector3[targetsToSpawn];
         for (int i = 0; i < spawnPoints.Length; i++) {
             if (Vector3.Distance (player.transform.position, spawnPoints[i].position) < spawnDistance && !spawned[i]) {
                 spawned[i] = true;
@@ -81,18 +83,16 @@ public class GameController : MonoBehaviour {
                                 Instantiate (enemyTarget, pos, Quaternion.identity);
                                 enemiesSpawned += 1;
                             }
-                            spawnedLocations.Add (pos);
-
+                            spawnedLocations[j] = pos;
                         }
                     }
                 }
             }
         }
     }
-    private bool OkSpawnPoint (Vector3 pos, List<Vector3> spawnedLocations) {
+    private bool OkSpawnPoint (Vector3 pos, Vector3[] spawnedLocations) {
         bool tooClose = false;
-        foreach (Vector3 location in spawnedLocations)
-        {
+        foreach (Vector3 location in spawnedLocations) {
             if (Vector3.Distance (pos, location) <= 2) {
                 tooClose = true;
                 break;
@@ -106,7 +106,7 @@ public class GameController : MonoBehaviour {
         gameEnded = true;
         string enemyStats = enemiesKilled.ToString () + "/" + enemiesSpawned.ToString ();
         string friendlyStats = friendliesKilled.ToString () + "/" + friendliesSpawned.ToString ();
-        endText.text = "Game ended. Press R to restart.\n" + GetAccuracy () + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
+        infoText.text = "Game ended. Press R to restart.\n" + GetAccuracy () + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
     }
 
     string GetAccuracy () {
@@ -114,8 +114,9 @@ public class GameController : MonoBehaviour {
         if (bulletsFired == 0)
             return "No shots were fired";
         string accuracy = ((100 * enemiesKilled) / (weapon.bulletsFired)).ToString ();
-        return " Your accuracy was: " + accuracy + "%";
+        return "Your accuracy was: " + accuracy + "%";
     }
+
     public void TargetOnHit (string tag) {
         if (tag == "EnemyTarget") {
             enemiesKilled += 1;

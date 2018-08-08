@@ -6,8 +6,6 @@ public class GrenadeThrower : MonoBehaviour {
 	public float throwForce = 40f;
 	public GameObject grenadePrefab;
 	public Camera cam;
-	// Use this for initialization
-	
 	
 	// Update is called once per frame
 	void Update () {
