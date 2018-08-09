@@ -108,7 +108,7 @@ public class GameController : MonoBehaviour {
         gameEnded = true;
         string enemyStats = enemiesKilled.ToString () + "/" + enemiesSpawned.ToString ();
         string friendlyStats = friendliesKilled.ToString () + "/" + friendliesSpawned.ToString ();
-        string timeString = "Your time was: " +  System.Math.Round(gameObject.GetComponent<Timer> ().t, 1) + "\n";
+        string timeString = "Your time was: " +  System.Math.Round(gameObject.GetComponent<Timer> ().t, 1) + "s\n";
         infoText.text = "Game ended. Press R to restart.\n" + timeString + GetAccuracy () + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
     }
 
