@@ -26,18 +26,16 @@ public class Grenade : MonoBehaviour {
 	void Explode () {
 		hasExploded = true;
 		GameObject explosion = Instantiate (explosionEffect, transform.position, transform.rotation);
-
 		Collider[] targetsHit = Physics.OverlapSphere (transform.position, blastRadius);
 
 		foreach (Collider obj in targetsHit) {
 			RaycastHit hit;
 			if (Physics.Linecast (transform.position, obj.transform.position, out hit)) {
-				Debug.Log(hit.transform.gameObject.tag);
 				// Don't destroy target if a wall is in the way
 				if (hit.transform == obj.transform || hit.transform.gameObject.tag == "FriendlyTarget"  || hit.transform.gameObject.tag == "EnemyTarget") {
 					Target t = obj.GetComponent<Target> ();
 					if (t != null) {
-						t.onHit ();
+						t.OnHit ();
 					}
 				}
 			}

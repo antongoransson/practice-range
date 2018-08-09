@@ -64,19 +64,20 @@ public class GameController : MonoBehaviour {
         SpawnTargets ();
     }
 
-    private void SpawnTargets () {
+    void SpawnTargets () {
         Vector3[] spawnedLocations = new Vector3[targetsToSpawn];
         for (int i = 0; i < spawnPoints.Length; i++) {
             if (Vector3.Distance (player.transform.position, spawnPoints[i].position) < spawnDistance && !spawned[i]) {
                 spawned[i] = true;
-                for (int j = 0; j < 6; j++) {
+                for (int j = 0; j < targetsToSpawn; j++) {
                     bool canSpawn = false;
                     while (!canSpawn) {
                         Vector3 size = sizes[i];
                         Vector3 pos = spawnPoints[i].position + new Vector3 (Random.Range (-size.x / 2, size.x / 2), 0, Random.Range (-size.z / 2, size.z / 2));
                         if (OkSpawnPoint (pos, spawnedLocations)) {
                             canSpawn = true;
-                            if (j == 5) {
+                            // Spawn one friendly
+                            if (j == targetsToSpawn - 1) {
                                 Instantiate (friendlyTarget, pos, Quaternion.identity);
                                 friendliesSpawned += 1;
                             } else {
@@ -90,7 +91,8 @@ public class GameController : MonoBehaviour {
             }
         }
     }
-    private bool OkSpawnPoint (Vector3 pos, Vector3[] spawnedLocations) {
+
+    bool OkSpawnPoint (Vector3 pos, Vector3[] spawnedLocations) {
         bool tooClose = false;
         foreach (Vector3 location in spawnedLocations) {
             if (Vector3.Distance (pos, location) <= 2) {
@@ -101,19 +103,20 @@ public class GameController : MonoBehaviour {
         return !tooClose;
     }
 
-    public void EndGame () {
+    void EndGame () {
         Time.timeScale = 0;
         gameEnded = true;
         string enemyStats = enemiesKilled.ToString () + "/" + enemiesSpawned.ToString ();
         string friendlyStats = friendliesKilled.ToString () + "/" + friendliesSpawned.ToString ();
-        infoText.text = "Game ended. Press R to restart.\n" + GetAccuracy () + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
+        string timeString = "Your time was: " +  System.Math.Round(gameObject.GetComponent<Timer> ().t, 1) + "\n";
+        infoText.text = "Game ended. Press R to restart.\n" + timeString + GetAccuracy () + "\nEnemies killed: " + enemyStats + "\nFriendlies killed: " + friendlyStats;
     }
 
     string GetAccuracy () {
         int bulletsFired = weapon.bulletsFired;
         if (bulletsFired == 0)
             return "No shots were fired";
-        string accuracy = ((100 * enemiesKilled) / (weapon.bulletsFired)).ToString ();
+        string accuracy = ((100 * weapon.bulletsHit) / (weapon.bulletsFired)).ToString ();
         return "Your accuracy was: " + accuracy + "%";
     }
 
@@ -134,6 +137,7 @@ public class GameController : MonoBehaviour {
         friendlies.text = "Friendlies killed: " + friendliesKilled.ToString ();
     }
 
+    // Used for debugging, makes it easy to see size of spawnpoints
     void OnDrawGizmosSelected () {
         Gizmos.color = new Color (1, 0, 0, 0.5f);
         for (int i = 0; i < spawnPoints.Length; i++) {

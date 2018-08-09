@@ -4,10 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Weapon : MonoBehaviour {
-    public Texture2D crosshairTexture;
     public float range = 100f;
     public int bulletsPerMag;
-    public float crosshairScale = 1;
 
     public AudioClip shootSound;
     public AudioClip reloadSound;
@@ -27,6 +25,7 @@ public class Weapon : MonoBehaviour {
     float reloadTimer;
     bool isReloading;
     public int bulletsFired;
+    public int bulletsHit;
 
     // Use this for initialization
     void Start () {
@@ -37,7 +36,7 @@ public class Weapon : MonoBehaviour {
         reloading.gameObject.SetActive (false);
         audioSource = GetComponent<AudioSource> ();
         isReloading = false;
-        setAmmoText ();
+        SetAmmoText ();
     }
 
     // Update is called once per frame
@@ -45,13 +44,13 @@ public class Weapon : MonoBehaviour {
         if (gameController.GetComponent<GameController> ().gameEnded || Time.timeScale == 0) return;
         if (isReloading && reloadTimer > reloadTime) {
             currentBullets = bulletsPerMag;
-            setAmmoText ();
+            SetAmmoText ();
             reloading.gameObject.SetActive (false);
             isReloading = false;
         }
         if (!Input.GetKey (KeyCode.LeftShift) && Input.GetButton ("Fire1") && !isReloading) {
             Fire ();
-        } else if (Input.GetButton ("R")) {
+        } else if (Input.GetButton ("R") && !isReloading) {
             Reload ();
         }
 
@@ -59,19 +58,7 @@ public class Weapon : MonoBehaviour {
         if (reloadTimer < reloadTime) reloadTimer += Time.deltaTime;
     }
 
-    void OnGUI () {
-        if (Time.timeScale != 0) {
-            if (crosshairTexture != null)
-                GUI.DrawTexture (
-                    new Rect (
-                        (Screen.width - crosshairTexture.width * crosshairScale) / 2,
-                        (Screen.height - crosshairTexture.height * crosshairScale) / 2,
-                        crosshairTexture.width * crosshairScale, crosshairTexture.height * crosshairScale),
-                    crosshairTexture);
-            else
-                Debug.Log ("No crosshair texture set in the Inspector");
-        }
-    }
+
 
     void Fire () {
         if (fireTimer < fireRate) return;
@@ -79,8 +66,10 @@ public class Weapon : MonoBehaviour {
 
         if (Physics.Raycast (cam.transform.position, cam.transform.forward, out hit, range)) {
             if (hit.transform.tag == "EnemyTarget" || hit.transform.tag == "FriendlyTarget") {
-                hit.transform.gameObject.GetComponent<Target> ().onHit ();
+                hit.transform.gameObject.GetComponent<Target> ().OnHit ();
+                
             }
+             if (hit.transform.tag == "EnemyTarget") bulletsHit += 1;
 
         }
         audioSource.clip = shootSound;
@@ -91,7 +80,7 @@ public class Weapon : MonoBehaviour {
         bulletsFired += 1;
         if (currentBullets == 0)
             Reload ();
-        setAmmoText ();
+        SetAmmoText ();
 
         fireTimer = 0.0f;
     }
@@ -104,7 +93,7 @@ public class Weapon : MonoBehaviour {
         reloading.gameObject.SetActive (true);
 
     }
-    void setAmmoText () {
+    void SetAmmoText () {
         currentAmmo.text = "Current Ammo: " + currentBullets.ToString () + "/" + bulletsPerMag.ToString ();
     }
 }

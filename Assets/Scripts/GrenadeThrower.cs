@@ -10,7 +10,7 @@ public class GrenadeThrower : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// Right mosue button
-		if(Input.GetMouseButtonDown(1) && Time.timeScale != 0) {
+		if(!Input.GetKey (KeyCode.LeftShift)  && Input.GetMouseButtonDown(1) && Time.timeScale != 0) {
 			ThrowGrenade();
 		}
 	}
